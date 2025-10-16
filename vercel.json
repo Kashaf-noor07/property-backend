@@ -4,6 +4,6 @@
     { "src": "api/server.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(auth|role|property|broker|customer|payment)(.*)", "dest": "api/server.js" }
+    { "src": "/(.*)", "dest": "api/server.js" }
   ]
 }
