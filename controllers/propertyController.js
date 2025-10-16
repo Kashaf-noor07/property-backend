@@ -2,11 +2,12 @@
 const Property = require("../models/property");
 const path = require("path");
 const fs = require("fs");
-const property = require("../models/property");
+
 
 exports.addProperty = async (req, res) => {
   try {
-    const images = req.files ? req.files.map(file => file.filename):[];
+    const images = req.uploadedImageUrls || [];
+
     const property = new Property({
       propertyname: req.body.propertyname,
       broker: req.body.broker,
@@ -16,17 +17,15 @@ exports.addProperty = async (req, res) => {
       rent: req.body.rent,
       address: req.body.address,
       images,
-      
       createdBy: req.user ? req.user.id : null,
     });
-    
 
     const savedProperty = await property.save();
     res.status(201).json(savedProperty);
-  }catch (err) {
-  console.error("Error in addProperty:", err); 
-  res.status(500).json({ error: err.message });
-}
+  } catch (err) {
+    console.error("Error in addProperty:", err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
 
@@ -119,8 +118,8 @@ exports.updateProperty = async (req, res) => {
      
       // i can include is rent status hre if wanna edit it
     };
-  if (req.files && req.files.length > 0) {
-  updates.images = [...property.images, ...req.files.map(file => file.filename)];
+ if (req.uploadedImageUrls && req.uploadedImageUrls.length > 0) {
+  updates.images = [...property.images, ...req.uploadedImageUrls];
 } else {
   updates.images = property.images;
 }

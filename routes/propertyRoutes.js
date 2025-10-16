@@ -2,12 +2,28 @@ const express = require("express");
 const router = express.Router();
 const propertyController = require("../controllers/propertyController");
 const authMiddleware= require("../middleware/authMiddleware")
-const upload = require ('../middleware/upload');
+const {upload, uploadToVercelBlob} = require("../middleware/uploadBlob")
+
 const roleMiddleware = require("../middleware/roleMiddleware");
 
+router.post(
+  "/add",
+  upload.array("images"),
+  uploadToVercelBlob,
+  authMiddleware,
+  roleMiddleware("admin"),
+  propertyController.addProperty
+);
+//update
+router.put(
+  "/update/:id",
+  upload.array("images"),
+  uploadToVercelBlob,
+  authMiddleware,
+  roleMiddleware("admin"),
+  propertyController.updateProperty
+);
 
-// POST /api/properties
-router.post("/add",upload.array("images"),authMiddleware,roleMiddleware("admin"), propertyController.addProperty);
 
 // GET /api/properties
 router.get("/list",authMiddleware,roleMiddleware("admin"),propertyController.getProperties);
@@ -20,9 +36,6 @@ router.delete("/delete/:id",authMiddleware,roleMiddleware("admin"),propertyContr
 
 //fetch update property
 router.get("/:id",authMiddleware,roleMiddleware("admin"),propertyController.getProperty);
-
-//update property
-router.put("/update/:id" , upload.array("images"),authMiddleware,roleMiddleware("admin"),propertyController.updateProperty);
 
 //to toggel property
 router.patch("/toggle/:id", authMiddleware,roleMiddleware("admin"), propertyController.togglePropertyStatus);

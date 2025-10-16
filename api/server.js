@@ -5,7 +5,7 @@ const connectDB = require('../config/db');
 const authRoutes = require('../routes/authRoutes');
 const propertyRoutes = require('../routes/propertyRoutes')
 const brokerRoutes = require('../routes/brokerRoutes')
-const upload = require('../middleware/upload')
+
 const customerRoutes = require('../routes/customerRoutes')
 const paymentRoutes = require('../routes/paymentRoutes')
 const roleRoutes = require("../routes/roleRoutes")
@@ -16,7 +16,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use ("/upload", express.static("upload"))
+
 
 
 // Connect DB
