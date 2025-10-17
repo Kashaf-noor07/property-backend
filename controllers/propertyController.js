@@ -41,31 +41,35 @@ exports.getProperties=async(req,res)=>{
   }
 }
 
+
+
 exports.deleteProperty = async (req, res) => {
   try {
-    const {id}=req.params
-    const property = await Property.findByIdAndDelete(id);
-    if(!property){
-     return res.status(404).json({message: "property not found"})
+    const { id } = req.params;
+
+    const property = await Property.findById(id);
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
     }
 
-    // the following if for deleting image from the folder upload
-    if(property.images && property.images.length > 0){
-      property.images.forEach((filename)=>{
-      const filePath = path.join(__dirname , ".." , "upload" , filename)
-      if(fs.existsSync(filePath)){
-       fs.unlink(filePath , (err)=> {
-        if (err){
-          console.error("Failed to delete the image:" , err.message)
+    // Delete all images from Vercel Blob
+    if (property.images && property.images.length > 0) {
+      for (const imgUrl of property.images) {
+        try {
+          await del(imgUrl);
+        } catch (err) {
+          console.error("Failed to delete image from Vercel Blob:", err.message);
         }
-       })
+      }
     }
-      })
-    }
-    res.json({message :"Property deleted successfully"})
+
+    // Delete property from database
+    await Property.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Property and associated images deleted successfully" });
   } catch (err) {
-    console.error("error in delete property", err)
-    res.status(500).json({ error: err.message });
+    console.error("Error deleting property:", err);
+    res.status(500).json({ error: "Failed to delete property" });
   }
 };
 
